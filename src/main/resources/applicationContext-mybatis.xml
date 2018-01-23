@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       classpath:org/springframework/beans/factory/xml/spring-beans-4.3.xsd
+       http://www.springframework.org/schema/context
+       classpath:org/springframework/context/config/spring-context-4.3.xsd">
+
+    <!--属性文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"/>
+    <!--数据库连接-->
+    <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <property name="username" value="${dbcp.mysql.username}"/>
+        <property name="password" value="${dbcp.mysql.password}"/>
+        <property name="url" value="${dbcp.mysql.url}"/>
+        <property name="driverClassName" value="${dbcp.mysql.driverClassName}"/>
+    </bean>
+
+    <!--整合mybatis-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--数据库连接-->
+        <property name="dataSource" ref="dataSource"/>
+        <!--mapper sql文件-->
+        <!--<property name="mapperLocations" value="classpath:online/resume/mapper/*Mapper.xml"/>-->
+        <!--别名系统-->
+        <property name="typeAliasesPackage" value="online.qsx.model"/>
+        <!--插件-->
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <value>
+                            helperDialect=mysql
+                            reasonable=true
+                        </value>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+
+    <!--整合mybatis接口-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+        <property name="basePackage" value="online.resume.mapper"/>
+    </bean>
+
+</beans>
